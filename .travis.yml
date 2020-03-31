@@ -1,29 +1,40 @@
 language: android
+jdk: oraclejdk8
 android:
   components:
-    - tools
     - platform-tools
-    - build-tools-29.0.3
-    - android-23
+    - tools
+    - build-tools-28.0.3
+    - android-28
+
     - extra-google-google_play_services
     - extra-google-m2repository
     - extra-android-m2repository
-jdk:
-  - oraclejdk8
+    - addon-google_apis-google-19
+
+
 before_install:
+  - yes | sdkmanager "platforms;android-28"
+
+before_script:
   - chmod +x gradlew
 
-#  - script:
-#      - yes | sdkmanager "platforms;android-29" # accept license
-#      - chmod +x gradlew                        # make executable
+script:
+  - ./gradlew test
+  - ./gradlew assembleDebug
 
-#      - ./gradlew test jacocoTestReport
-#      ## uncomment test exec if android integration tests are needed
-#      #  - ./gradlew connectedAndroidTest
-#      - ./gradlew lint
-#      - sonar-scanner
-#
-#    addons:
-#      sonarcloud:
-#        organization: "rizwanaalam-github" # der key der organisation auf sonarcloud.io
-#        token: $SONAR_TOKEN # Umgebungsvariable auf travis-ci.com
+
+deploy:
+  provider: releases
+  api-key: $GITHUB_API_KEY
+  file: $TRAVIS_BUILD_DIR/app/build/outputs/apk/debug/app-debug.apk
+  skip_cleanup: true
+  name: $TRAVIS_TAG
+  body: Automatic build of $TRAVIS_BRANCH ($TRAVIS_COMMIT) built by Travis CI on $(date +'%F %T %Z').
+  overwrite: true
+  target_commitish: $TRAVIS_COMMIT
+  on:
+    tags: true
+
+after_deploy:
+  - rm -rf $TRAVIS_BUILD_DIR/app/build/outputs
