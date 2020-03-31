@@ -1,4 +1,8 @@
 language: android
+
+# you MUST mention trusty https://docs.travis-ci.com/user/languages/android/
+dist: trusty
+
 jdk: oraclejdk8
 android:
   components:
